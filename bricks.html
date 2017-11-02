@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+	<head lang="en">
+		<title>Ball game</title>
+		<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+		<style>
+			canvas, button, div{
+				margin:auto;
+				display: block;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="myCanvas" width="500" height="350" border="" style="border:solid"></canvas>
+		<div id="hello"></div>
+		<div id="world"></div>
+		<button id="btn1" onClick="init()" >Start</button>
+		<button id="btn2" onClick="history.go(0)" >Reset</button>
+		<script>
+			var context;
+			//ball
+			var x=250;
+			var y=295;
+			var dx=5;
+			var dy=5;
+			//reflector
+			var a=170;
+			var da=0;
+			var spd = 6;
+			var fm = 0.97;
+			var step = 12;
+			//initial drawing
+			var brick = [75,25];
+			var offset = [[100,100],[175,125],[250,100],[175,75],[325,125],[325,75]];
+			context = myCanvas.getContext('2d');
+			context.beginPath();
+			context.fillStyle="#000000";
+			context.fillRect(a,300,150,10);
+			context.beginPath();
+			context.fillStyle="#ff0000";
+			context.arc(x,y,5,0,Math.PI*2,true);
+			context.stroke();
+			context.fill();
+			function init()
+			{
+				var startDraw = setInterval(draw,20);
+				function draw()
+				{
+					if (y > 400 || offset.length == 0) {
+					clearInterval(startDraw);
+					}
+					else{
+						//calculating 'a'
+						da *= fm;
+						a += da;
+						// if (a >= 350) {
+						//     a = 350;
+						// }
+						// if (a <= 0) {
+						//     a = 0;
+						// }
+						//draw reflector
+						context.clearRect(0,0,500,350);
+						context.beginPath();
+						context.fillStyle="#000000";
+						context.fillRect(a,300,150,10);
+						//draw circle
+						context.beginPath();
+						context.fillStyle="#ff0000";
+						context.arc(x,y,5,0,Math.PI*2,true);
+						context.stroke();
+						context.fill();
+						//canvas margin conditions
+						document.getElementById("hello").innerHTML = "pos x: "+x+" pos a: "+a+" number of bricks: "+offset.length;
+						if( x<0 || x>500) dx=-dx; 
+						if( y<0 || y>350) dy=-dy;
+						//brick margin conditions
+						if( y==300 && x>=a && x<=a+150 )dy=-dy;
+						x+=dx;
+						y+=dy;
+						context.fillStyle="#00ff00";
+						for(i=0; i<offset.length; i++){
+						//brick margin conditions
+								//upper
+								if( x>offset[i][0] && x<brick[0]+offset[i][0] && y==offset[i][1] ) {dy=-dy; offset.splice(i, 1);} ;
+								//lower
+								if( x>offset[i][0] && x<brick[0]+offset[i][0] && y==offset[i][1]+brick[1] ) {dy=-dy; offset.splice(i, 1);};
+								//left
+								if( x==offset[i][0] && y>offset[i][1] && y<offset[i][1]+brick[1]) {dx=-dx; offset.splice(i, 1);};
+								//right
+								if( x==offset[i][0]+brick[0] && y>offset[i][1] && y<offset[i][1]+brick[1] ) {dx=-dx; offset.splice(i, 1);};
+						//draw bricks
+								context.fillRect(offset[i][0],offset[i][1],brick[0],brick[1]);
+						};
+					};
+				};
+			};
+			
+			//arrow keys
+			document.onkeydown = function(e) {
+				switch (e.keyCode) {
+					case 37:
+					if(da > -spd) {
+						da=da-step;
+					}
+					break;
+					case 39:
+					if(da < spd) {
+						da=da+step;
+					}
+					break;
+				}
+			};
+		</script>
+	</body>
+</html>
